@@ -1,0 +1,15 @@
+{
+  "name": "smart-task-reminder",
+  "version": "1.0.0",
+  "description": "Smart Task & Reminder App — monorepo with backend, web, and mobile apps",
+  "private": true,
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:web": "cd web && npm run dev",
+    "dev:mobile": "cd mobile && npx expo start",
+    "install:all": "cd backend && npm install && cd ../web && npm install && cd ../mobile && npm install",
+    "test": "cd backend && npm test"
+  },
+  "keywords": ["task", "reminder", "fullstack", "monorepo"],
+  "license": "MIT"
+}

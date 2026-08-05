@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "Smart Tasks",
+    "slug": "smart-tasks-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#020617"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.smarttasks.mobile"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#020617"
+      },
+      "package": "com.smarttasks.mobile"
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#6366f1"
+        }
+      ]
+    ]
+  }
+}
