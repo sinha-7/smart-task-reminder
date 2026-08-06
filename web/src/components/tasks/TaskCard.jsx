@@ -49,7 +49,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
                 📅 {dueDate.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
               </span>
             )}
-            {task.reminderAt && !task.reminderSent && (
+            {task.reminderAt && (
               <span className="text-primary-400/80">
                 ⏰ {new Date(task.reminderAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
               </span>
