@@ -2,7 +2,7 @@ const express = require('express');
 const { body } = require('express-validator');
 const validate = require('../middleware/validate');
 const auth = require('../middleware/auth');
-const { suggestPriority } = require('../controllers/aiController');
+const { suggestPriority, parseTask, dailyPlan, weeklyReview } = require('../controllers/aiController');
 
 const router = express.Router();
 
@@ -27,5 +27,30 @@ router.post(
   ],
   suggestPriority
 );
+
+/**
+ * POST /api/ai/parse-task
+ */
+router.post(
+  '/parse-task',
+  [
+    body('text')
+      .trim()
+      .notEmpty()
+      .withMessage('Text input is required to parse'),
+    validate,
+  ],
+  parseTask
+);
+
+/**
+ * GET /api/ai/daily-plan
+ */
+router.get('/daily-plan', dailyPlan);
+
+/**
+ * GET /api/ai/weekly-review
+ */
+router.get('/weekly-review', weeklyReview);
 
 module.exports = router;

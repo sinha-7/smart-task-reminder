@@ -21,7 +21,11 @@ export default function TasksPage() {
     updateTask,
     deleteTask,
     suggestPriority,
+    parseTaskFromText,
   } = useTasks();
+
+  const [magicText, setMagicText] = useState('');
+  const [isMagicLoading, setIsMagicLoading] = useState(false);
 
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 400);
@@ -95,6 +99,22 @@ export default function TasksPage() {
     setModalOpen(true);
   };
 
+  const handleMagicCreate = async (e) => {
+    e.preventDefault();
+    if (!magicText.trim()) return;
+    
+    setIsMagicLoading(true);
+    const parsed = await parseTaskFromText(magicText);
+    setIsMagicLoading(false);
+    
+    if (parsed) {
+      // Open the modal pre-filled with the AI parsed data
+      setEditingTask(parsed);
+      setModalOpen(true);
+      setMagicText('');
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
@@ -105,9 +125,29 @@ export default function TasksPage() {
             {pagination.total} task{pagination.total !== 1 ? 's' : ''} total
           </p>
         </div>
-        <button onClick={openCreate} className="btn-primary" id="create-task-btn">
-          + New Task
-        </button>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <form onSubmit={handleMagicCreate} className="flex flex-1 sm:flex-none relative group">
+            <input
+              type="text"
+              placeholder="Magic create... (e.g. 'buy milk tomorrow')"
+              value={magicText}
+              onChange={(e) => setMagicText(e.target.value)}
+              className="input-field py-2 pr-10 bg-primary-950/20 text-sm focus:w-64 w-full sm:w-48 transition-all duration-300"
+              disabled={isMagicLoading}
+            />
+            <button
+              type="submit"
+              disabled={!magicText.trim() || isMagicLoading}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-primary-400 hover:text-primary-300 disabled:opacity-50"
+              title="Parse with AI"
+            >
+              ✨
+            </button>
+          </form>
+          <button onClick={openCreate} className="btn-primary whitespace-nowrap" id="create-task-btn">
+            + New Task
+          </button>
+        </div>
       </div>
 
       {/* Search & Filters */}

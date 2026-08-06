@@ -1,14 +1,44 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTasks } from '../hooks/useTasks';
 import StatsCard from '../components/dashboard/StatsCard';
 import TaskCard from '../components/tasks/TaskCard';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import EmptyState from '../components/ui/EmptyState';
+import Modal from '../components/ui/Modal';
+import ReactMarkdown from 'react-markdown';
 
 export default function DashboardPage() {
   const navigate = useNavigate();
-  const { tasks, stats, loading, fetchTasks, fetchStats, updateTask } = useTasks();
+  const { tasks, stats, loading, fetchTasks, fetchStats, updateTask, getDailyPlan, getWeeklyReview } = useTasks();
+
+  const [planOpen, setPlanOpen] = useState(false);
+  const [planData, setPlanData] = useState(null);
+  const [planLoading, setPlanLoading] = useState(false);
+
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [reviewData, setReviewData] = useState(null);
+  const [reviewLoading, setReviewLoading] = useState(false);
+
+  const handleOpenPlan = async () => {
+    setPlanOpen(true);
+    if (!planData) {
+      setPlanLoading(true);
+      const data = await getDailyPlan();
+      setPlanData(data);
+      setPlanLoading(false);
+    }
+  };
+
+  const handleOpenReview = async () => {
+    setReviewOpen(true);
+    if (!reviewData) {
+      setReviewLoading(true);
+      const data = await getWeeklyReview();
+      setReviewData(data);
+      setReviewLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchStats();
@@ -23,9 +53,19 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-100">Dashboard</h1>
-        <p className="text-gray-500 mt-1">Overview of your tasks and reminders</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-100">Dashboard</h1>
+          <p className="text-gray-500 mt-1">Overview of your tasks and reminders</p>
+        </div>
+        <div className="flex gap-2">
+          <button onClick={handleOpenPlan} className="btn-secondary whitespace-nowrap">
+            📅 Plan My Day
+          </button>
+          <button onClick={handleOpenReview} className="btn-secondary whitespace-nowrap">
+            📊 Review My Week
+          </button>
+        </div>
       </div>
 
       {/* Stats Grid */}
@@ -115,6 +155,47 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+
+      {/* Modals for AI Features */}
+      <Modal isOpen={planOpen} onClose={() => setPlanOpen(false)} title="✨ Daily AI Plan">
+        <div className="p-4 bg-primary-950/30 rounded-xl border border-primary-500/20 text-gray-200">
+          {planLoading ? (
+            <div className="flex flex-col items-center justify-center py-8">
+              <LoadingSpinner />
+              <p className="mt-4 text-sm text-primary-400 animate-pulse">Building your perfect schedule...</p>
+            </div>
+          ) : planData ? (
+            <div className="prose prose-invert prose-p:leading-relaxed prose-li:my-1 max-w-none">
+              <ReactMarkdown>{planData}</ReactMarkdown>
+            </div>
+          ) : (
+            <p className="text-red-400">Failed to load plan.</p>
+          )}
+        </div>
+        <div className="mt-4 flex justify-end">
+          <button onClick={() => setPlanOpen(false)} className="btn-primary">Close</button>
+        </div>
+      </Modal>
+
+      <Modal isOpen={reviewOpen} onClose={() => setReviewOpen(false)} title="✨ Weekly AI Review">
+        <div className="p-4 bg-primary-950/30 rounded-xl border border-primary-500/20 text-gray-200">
+          {reviewLoading ? (
+            <div className="flex flex-col items-center justify-center py-8">
+              <LoadingSpinner />
+              <p className="mt-4 text-sm text-primary-400 animate-pulse">Analyzing your week...</p>
+            </div>
+          ) : reviewData ? (
+            <div className="prose prose-invert prose-p:leading-relaxed prose-li:my-1 max-w-none">
+              <ReactMarkdown>{reviewData}</ReactMarkdown>
+            </div>
+          ) : (
+            <p className="text-red-400">Failed to load review.</p>
+          )}
+        </div>
+        <div className="mt-4 flex justify-end">
+          <button onClick={() => setReviewOpen(false)} className="btn-primary">Close</button>
+        </div>
+      </Modal>
     </div>
   );
 }

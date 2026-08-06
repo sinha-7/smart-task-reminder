@@ -60,6 +60,36 @@ export function useTasks() {
     }
   }, []);
 
+  const parseTaskFromText = useCallback(async (text) => {
+    try {
+      const res = await api.post('/ai/parse-task', { text });
+      return res.data.data;
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to parse task from text');
+      return null;
+    }
+  }, []);
+
+  const getDailyPlan = useCallback(async () => {
+    try {
+      const res = await api.get('/ai/daily-plan');
+      return res.data.data;
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to generate daily plan');
+      return null;
+    }
+  }, []);
+
+  const getWeeklyReview = useCallback(async () => {
+    try {
+      const res = await api.get('/ai/weekly-review');
+      return res.data.data;
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to generate weekly review');
+      return null;
+    }
+  }, []);
+
   return {
     tasks,
     pagination,
@@ -71,5 +101,8 @@ export function useTasks() {
     updateTask,
     deleteTask,
     suggestPriority,
+    parseTaskFromText,
+    getDailyPlan,
+    getWeeklyReview,
   };
 }
