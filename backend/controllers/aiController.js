@@ -78,7 +78,7 @@ Respond ONLY with valid JSON in this exact format (no markdown, no code blocks):
     console.error('AI suggestion error:', error.message);
     res.status(500).json({
       success: false,
-      message: 'AI service temporarily unavailable.',
+      message: `Google AI Error: ${error.message}`,
       data: {
         priority: 'medium',
         category: 'General',
