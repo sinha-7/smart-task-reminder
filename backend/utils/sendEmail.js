@@ -16,7 +16,7 @@ const sendEmail = async ({ to, subject, html }) => {
     }
 
     const { data, error } = await resend.emails.send({
-      from: `Smart Tasks <${env.EMAIL_FROM}>`,
+      from: `onboarding@resend.dev`,
       to,
       subject,
       html,
