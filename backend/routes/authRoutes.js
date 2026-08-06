@@ -78,7 +78,15 @@ router.post(
 router.post(
   '/reset-password',
   [
-    body('token').notEmpty().withMessage('Reset token is required'),
+    body('email')
+      .trim()
+      .isEmail()
+      .withMessage('Please provide a valid email')
+      .normalizeEmail(),
+    body('otp')
+      .trim()
+      .isLength({ min: 6, max: 6 })
+      .withMessage('OTP must be exactly 6 digits'),
     body('password')
       .isLength({ min: 6 })
       .withMessage('Password must be at least 6 characters'),

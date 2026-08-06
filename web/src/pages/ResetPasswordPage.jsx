@@ -1,22 +1,34 @@
-import { useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import toast from 'react-hot-toast';
 
 export default function ResetPasswordPage() {
+  const location = useLocation();
+  const [email, setEmail] = useState('');
+  const [otp, setOtp] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
   
   const { resetPassword, loading } = useAuth();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (location.state?.email) {
+      setEmail(location.state.email);
+    }
+  }, [location]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!token) {
-      toast.error('Invalid or missing reset token');
+    if (!email) {
+      toast.error('Email is required');
+      return;
+    }
+
+    if (!otp || otp.length !== 6) {
+      toast.error('Please enter a valid 6-digit OTP');
       return;
     }
 
@@ -31,7 +43,7 @@ export default function ResetPasswordPage() {
     }
 
     try {
-      await resetPassword({ token, password });
+      await resetPassword({ email, otp, password });
       toast.success('Password reset successfully!');
       navigate('/login');
     } catch (err) {
@@ -49,10 +61,37 @@ export default function ResetPasswordPage() {
         <div className="text-center mb-8">
           <span className="text-5xl mb-4 block">🔒</span>
           <h1 className="text-2xl font-bold text-gray-100">Create new password</h1>
-          <p className="text-gray-500 mt-1">Please enter your new password below.</p>
+          <p className="text-gray-500 mt-1">Check your email for the 6-digit OTP.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="label" htmlFor="reset-email">Email</label>
+            <input
+              id="reset-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="input-field"
+              placeholder="you@example.com"
+              required
+              readOnly={!!location.state?.email}
+              style={location.state?.email ? { opacity: 0.7, cursor: 'not-allowed' } : {}}
+            />
+          </div>
+          <div>
+            <label className="label" htmlFor="reset-otp">6-Digit OTP</label>
+            <input
+              id="reset-otp"
+              type="text"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              className="input-field tracking-widest text-center text-lg"
+              placeholder="123456"
+              required
+              maxLength={6}
+            />
+          </div>
           <div>
             <label className="label" htmlFor="new-password">New Password</label>
             <input

@@ -1,21 +1,26 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import toast from 'react-hot-toast';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
-  const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { forgotPassword } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       await forgotPassword(email);
-      setSent(true);
-      toast.success('Check your email for reset instructions');
+      toast.success('Check your email for the 6-digit OTP');
+      // Navigate to the reset page and pass the email
+      navigate('/reset-password', { state: { email } });
     } catch (err) {
       toast.error(err.response?.data?.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -29,38 +34,26 @@ export default function ForgotPasswordPage() {
         <div className="text-center mb-8">
           <span className="text-5xl mb-4 block">🔑</span>
           <h1 className="text-2xl font-bold text-gray-100">Reset password</h1>
-          <p className="text-gray-500 mt-1">We'll send you a reset link</p>
+          <p className="text-gray-500 mt-1">We'll send you a 6-digit OTP</p>
         </div>
 
-        {sent ? (
-          <div className="text-center animate-fade-in">
-            <span className="text-5xl block mb-4">📧</span>
-            <p className="text-gray-300 mb-4">
-              If an account with <strong>{email}</strong> exists, you'll receive a reset link shortly.
-            </p>
-            <Link to="/login" className="btn-primary inline-block">
-              Back to login
-            </Link>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="label" htmlFor="forgot-email">Email</label>
+            <input
+              id="forgot-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="input-field"
+              placeholder="you@example.com"
+              required
+            />
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="label" htmlFor="forgot-email">Email</label>
-              <input
-                id="forgot-email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="input-field"
-                placeholder="you@example.com"
-                required
-              />
-            </div>
-            <button type="submit" className="btn-primary w-full" id="forgot-submit-btn">
-              Send reset link
-            </button>
-          </form>
-        )}
+          <button type="submit" disabled={loading} className="btn-primary w-full" id="forgot-submit-btn">
+            {loading ? 'Sending...' : 'Send OTP'}
+          </button>
+        </form>
 
         <p className="text-center text-sm text-gray-500 mt-6">
           <Link to="/login" className="text-primary-400 hover:text-primary-300 transition-colors">

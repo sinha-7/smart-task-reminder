@@ -115,21 +115,18 @@ const forgotPassword = async (req, res, next) => {
       });
     }
 
-    // Generate reset token (plain + hashed)
-    const resetToken = crypto.randomBytes(32).toString('hex');
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
     user.resetToken = crypto
       .createHash('sha256')
-      .update(resetToken)
+      .update(otp)
       .digest('hex');
-    user.resetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    user.resetExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
     await user.save();
-
-    // Build reset URL
-    const resetUrl = `${env.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
     await sendEmail({
       to: user.email,
-      subject: '🔑 Password Reset — Smart Tasks',
+      subject: '🔑 Password Reset OTP — Smart Tasks',
       html: `
         <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 12px 12px 0 0;">
@@ -137,13 +134,13 @@ const forgotPassword = async (req, res, next) => {
           </div>
           <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 12px 12px;">
             <p>Hi ${user.name},</p>
-            <p>You requested a password reset. Click the button below to reset your password:</p>
+            <p>You requested a password reset. Use the following 6-digit OTP to reset your password:</p>
             <div style="text-align: center; margin: 25px 0;">
-              <a href="${resetUrl}" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; text-decoration: none; padding: 12px 30px; border-radius: 8px; font-weight: 600; display: inline-block;">
-                Reset Password
-              </a>
+              <div style="background: #eef2f6; color: #333; letter-spacing: 5px; font-size: 32px; padding: 20px; border-radius: 8px; font-weight: 700; display: inline-block;">
+                ${otp}
+              </div>
             </div>
-            <p style="color: #999; font-size: 13px;">This link expires in 1 hour. If you didn't request this, please ignore this email.</p>
+            <p style="color: #999; font-size: 13px;">This OTP expires in 10 minutes. If you didn't request this, please ignore this email.</p>
           </div>
         </div>
       `,
@@ -165,16 +162,21 @@ const forgotPassword = async (req, res, next) => {
  */
 const resetPassword = async (req, res, next) => {
   try {
-    const { token, password } = req.body;
+    const { email, otp, password } = req.body;
 
-    // Hash the provided token to match stored hash
-    const hashedToken = crypto
+    if (!email || !otp || !password) {
+      return res.status(400).json({ success: false, message: 'Email, OTP, and new password are required' });
+    }
+
+    // Hash the provided OTP to match stored hash
+    const hashedOtp = crypto
       .createHash('sha256')
-      .update(token)
+      .update(otp)
       .digest('hex');
 
     const user = await User.findOne({
-      resetToken: hashedToken,
+      email,
+      resetToken: hashedOtp,
       resetExpires: { $gt: Date.now() },
     });
 
