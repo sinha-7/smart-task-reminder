@@ -16,6 +16,9 @@ const aiRoutes = require('./routes/aiRoutes');
 
 const app = express();
 
+// ── Proxy Configuration ────────────────────────────────────────────
+app.set('trust proxy', 1);
+
 // ── Security ─────────────────────────────────────────────────────
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }

@@ -130,7 +130,7 @@ Respond ONLY with valid JSON (no markdown):
  */
 const dailyPlan = async (req, res, next) => {
   try {
-    const tasks = await Task.find({ userId: req.user._id, completed: false })
+    const tasks = await Task.find({ userId: req.user.id, completed: false })
       .select('title priority dueDate category')
       .sort({ dueDate: 1, createdAt: 1 })
       .limit(15);
@@ -169,7 +169,7 @@ const weeklyReview = async (req, res, next) => {
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
     const tasks = await Task.find({ 
-      userId: req.user._id,
+      userId: req.user.id,
       updatedAt: { $gte: sevenDaysAgo }
     }).select('title completed category priority updatedAt');
 
