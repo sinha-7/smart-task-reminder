@@ -14,15 +14,22 @@ export default function TaskForm({ task, onSubmit, onCancel, onAiSuggest }) {
 
   const categories = ['General', 'Work', 'Personal', 'Study', 'Health', 'Finance', 'Shopping', 'Travel'];
 
+  const toLocalDatetimeLocal = (utcString) => {
+    if (!utcString) return '';
+    const date = new Date(utcString);
+    const offset = date.getTimezoneOffset() * 60000;
+    return new Date(date.getTime() - offset).toISOString().slice(0, 16);
+  };
+
   useEffect(() => {
     if (task) {
       setForm({
         title: task.title || '',
         description: task.description || '',
-        dueDate: task.dueDate ? task.dueDate.slice(0, 16) : '',
+        dueDate: toLocalDatetimeLocal(task.dueDate),
         priority: task.priority || 'medium',
         category: task.category || 'General',
-        reminderAt: task.reminderAt ? task.reminderAt.slice(0, 16) : '',
+        reminderAt: toLocalDatetimeLocal(task.reminderAt),
       });
     }
   }, [task]);
