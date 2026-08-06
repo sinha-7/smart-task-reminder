@@ -1,5 +1,10 @@
 {
   "appId": "com.smarttasks.app",
   "appName": "smart-task-reminder",
-  "webDir": "dist"
+  "webDir": "dist",
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
 }

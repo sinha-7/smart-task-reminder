@@ -23,6 +23,11 @@ export function AuthProvider({ children }) {
       const res = await api.post('/auth/signup', { name, email, password });
       saveAuth(res.data.data);
       return res.data;
+    } catch (error) {
+      if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+        throw new Error('The server is waking up from sleep. Please try again in about 60 seconds.');
+      }
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -34,6 +39,11 @@ export function AuthProvider({ children }) {
       const res = await api.post('/auth/login', { email, password });
       saveAuth(res.data.data);
       return res.data;
+    } catch (error) {
+      if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+        throw new Error('The server is waking up from sleep. Please try again in about 60 seconds.');
+      }
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -47,13 +57,27 @@ export function AuthProvider({ children }) {
   }, []);
 
   const forgotPassword = useCallback(async (email) => {
-    const res = await api.post('/auth/forgot-password', { email });
-    return res.data;
+    try {
+      const res = await api.post('/auth/forgot-password', { email });
+      return res.data;
+    } catch (error) {
+      if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+        throw new Error('The server is waking up from sleep. Please try again in about 60 seconds.');
+      }
+      throw error;
+    }
   }, []);
 
   const resetPassword = useCallback(async ({ email, otp, password }) => {
-    const res = await api.post('/auth/reset-password', { email, otp, password });
-    return res.data;
+    try {
+      const res = await api.post('/auth/reset-password', { email, otp, password });
+      return res.data;
+    } catch (error) {
+      if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+        throw new Error('The server is waking up from sleep. Please try again in about 60 seconds.');
+      }
+      throw error;
+    }
   }, []);
 
   // Check if token is still valid on mount
