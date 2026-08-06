@@ -24,12 +24,9 @@ const env = {
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '1h',
   JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
 
-  // Email / SMTP
-  SMTP_HOST: process.env.SMTP_HOST || 'smtp.ethereal.email',
-  SMTP_PORT: parseInt(process.env.SMTP_PORT, 10) || 587,
-  SMTP_USER: process.env.SMTP_USER || '',
-  SMTP_PASS: process.env.SMTP_PASS || '',
-  EMAIL_FROM: process.env.EMAIL_FROM || 'noreply@smarttasks.app',
+  // Email / Resend
+  RESEND_API_KEY: process.env.RESEND_API_KEY || '',
+  EMAIL_FROM: process.env.EMAIL_FROM || 'onboarding@resend.dev',
 
   // AI
   GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
