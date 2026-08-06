@@ -51,7 +51,11 @@ export function useTasks() {
     try {
       const res = await api.post('/ai/suggest-priority', { title, description });
       return res.data.data;
-    } catch {
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to get AI suggestion');
+      if (err.response?.data?.data) {
+        return err.response.data.data;
+      }
       return null;
     }
   }, []);
