@@ -1,19 +1,7 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
 const env = require('../config/env');
 
-/** @type {import('@google/generative-ai').GoogleGenerativeAI | null} */
-let genAI = null;
-
-const getGenAI = () => {
-  if (!env.GEMINI_API_KEY) return null;
-  if (!genAI) {
-    genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
-  }
-  return genAI;
-};
-
 /**
- * @desc    AI suggests priority and category for a task
+ * @desc    AI suggests priority and category for a task (via OpenRouter Free Gemini)
  * @route   POST /api/ai/suggest-priority
  * @access  Private
  */
@@ -21,15 +9,12 @@ const suggestPriority = async (req, res, next) => {
   try {
     const { title, description } = req.body;
 
-    const ai = getGenAI();
-    if (!ai) {
+    if (!env.GEMINI_API_KEY) {
       return res.status(503).json({
         success: false,
         message: 'AI service is not configured. Please set GEMINI_API_KEY.',
       });
     }
-
-    const model = ai.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const prompt = `You are a task management assistant. Based on the following task details, suggest:
 1. Priority level: "low", "medium", or "high"
@@ -42,16 +27,36 @@ ${description ? `Task Description: ${description}` : ''}
 Respond ONLY with valid JSON in this exact format (no markdown, no code blocks):
 {"priority": "low|medium|high", "category": "CategoryName", "reasoning": "Brief explanation"}`;
 
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text().trim();
+    // Fetch from OpenRouter's free tier
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${env.GEMINI_API_KEY}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": env.FRONTEND_URL || "http://localhost:5173", // Optional but recommended by OpenRouter
+        "X-Title": "Smart Task Reminder" // Optional but recommended
+      },
+      body: JSON.stringify({
+        "model": "google/gemini-2.0-flash-lite-preview-02-05:free",
+        "messages": [
+          {"role": "user", "content": prompt}
+        ]
+      })
+    });
 
-    // Parse the JSON response — handle potential markdown wrapping
+    if (!response.ok) {
+        throw new Error(`OpenRouter API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const responseText = data.choices[0].message.content.trim();
+
+    // Parse the JSON response
     let parsed;
     try {
       const jsonStr = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       parsed = JSON.parse(jsonStr);
     } catch {
-      // Fallback if AI returns malformed JSON
       parsed = {
         priority: 'medium',
         category: 'General',
@@ -74,11 +79,10 @@ Respond ONLY with valid JSON in this exact format (no markdown, no code blocks):
       },
     });
   } catch (error) {
-    // Don't let AI errors crash the app — return a graceful fallback
     console.error('AI suggestion error:', error.message);
     res.status(500).json({
       success: false,
-      message: `Google AI Error: ${error.message}`,
+      message: `OpenRouter AI Error: ${error.message}`,
       data: {
         priority: 'medium',
         category: 'General',
