@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
-import api from '../utils/api';
+import api from '../api/axios';
 
 export default function ReminderManager() {
   const scheduledTimeouts = useRef(new Set());
