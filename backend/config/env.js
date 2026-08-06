@@ -34,7 +34,7 @@ const env = {
   // CORS
   CORS_ORIGINS: process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(',').map((o) => o.trim())
-    : ['http://localhost:5173', 'http://localhost:19006'],
+    : ['http://localhost:5173', 'http://localhost:19006', 'http://localhost', 'capacitor://localhost'],
 
   // Frontend URL
   FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5173',
