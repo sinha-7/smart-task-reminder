@@ -76,11 +76,15 @@ export default function ReminderManager() {
       }
     };
 
-    // Check immediately, then every 5 minutes to pick up newly created tasks
+    // Check immediately, then every 60 seconds to pick up newly created tasks on other devices
     checkReminders();
-    const interval = setInterval(checkReminders, 300000);
+    const interval = setInterval(checkReminders, 60000);
+    window.addEventListener('tasksUpdated', checkReminders);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('tasksUpdated', checkReminders);
+    };
   }, []);
 
   return null; // Invisible background component

@@ -33,18 +33,21 @@ export function useTasks() {
   const createTask = useCallback(async (taskData) => {
     const res = await api.post('/tasks', taskData);
     toast.success('Task created!');
+    window.dispatchEvent(new Event('tasksUpdated'));
     return res.data.data.task;
   }, []);
 
   const updateTask = useCallback(async (id, taskData) => {
     const res = await api.put(`/tasks/${id}`, taskData);
     toast.success('Task updated!');
+    window.dispatchEvent(new Event('tasksUpdated'));
     return res.data.data.task;
   }, []);
 
   const deleteTask = useCallback(async (id) => {
     await api.delete(`/tasks/${id}`);
     toast.success('Task deleted!');
+    window.dispatchEvent(new Event('tasksUpdated'));
   }, []);
 
   const suggestPriority = useCallback(async ({ title, description }) => {
