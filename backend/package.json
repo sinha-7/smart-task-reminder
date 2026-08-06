@@ -22,8 +22,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.5",
     "morgan": "^1.10.0",
-    "node-cron": "^3.0.3",
-    "resend": "^6.18.1"
+    "node-cron": "^3.0.3"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",

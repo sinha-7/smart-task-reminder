@@ -24,11 +24,11 @@ const env = {
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '1h',
   JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
 
-  // Email / Resend
-  RESEND_API_KEY: process.env.RESEND_API_KEY || '',
-  EMAIL_FROM: process.env.EMAIL_FROM || 'onboarding@resend.dev',
-
-  // AI
+  // EmailJS
+  EMAILJS_SERVICE_ID: process.env.EMAILJS_SERVICE_ID || '',
+  EMAILJS_TEMPLATE_ID: process.env.EMAILJS_TEMPLATE_ID || '',
+  EMAILJS_PUBLIC_KEY: process.env.EMAILJS_PUBLIC_KEY || '',
+  EMAILJS_PRIVATE_KEY: process.env.EMAILJS_PRIVATE_KEY || '',
   GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
 
   // CORS
