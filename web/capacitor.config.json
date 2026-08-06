@@ -1,0 +1,5 @@
+{
+  "appId": "com.smarttasks.app",
+  "appName": "smart-task-reminder",
+  "webDir": "dist"
+}
