@@ -46,11 +46,13 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
           <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
             {dueDate && (
               <span className={isOverdue ? 'text-rose-400' : ''}>
-                📅 {dueDate.toLocaleDateString()}
+                📅 {dueDate.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
               </span>
             )}
             {task.reminderAt && !task.reminderSent && (
-              <span>⏰ Reminder set</span>
+              <span className="text-primary-400/80">
+                ⏰ {new Date(task.reminderAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+              </span>
             )}
           </div>
         </div>
