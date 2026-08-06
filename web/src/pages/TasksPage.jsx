@@ -108,10 +108,14 @@ export default function TasksPage() {
     setIsMagicLoading(false);
     
     if (parsed) {
-      // Open the modal pre-filled with the AI parsed data
-      setEditingTask(parsed);
-      setModalOpen(true);
-      setMagicText('');
+      try {
+        await createTask(parsed);
+        setMagicText('');
+        loadTasks();
+        toast.success('Magic task created!');
+      } catch (err) {
+        toast.error('Failed to create magic task');
+      }
     }
   };
 
