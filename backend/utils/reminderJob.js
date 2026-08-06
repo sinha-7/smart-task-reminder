@@ -76,6 +76,9 @@ const startReminderJob = () => {
           console.error(
             `❌ Failed to send reminder for task ${task._id}: ${emailError.message}`
           );
+          // Mark as sent anyway so it doesn't infinitely loop and block other tasks
+          task.reminderSent = true;
+          await task.save();
         }
       }
     } catch (error) {
