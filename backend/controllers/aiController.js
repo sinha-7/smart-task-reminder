@@ -37,7 +37,7 @@ Respond ONLY with valid JSON in this exact format (no markdown, no code blocks):
         "X-Title": "Smart Task Reminder" // Optional but recommended
       },
       body: JSON.stringify({
-        "model": "google/gemini-2.0-flash-lite-preview-02-05:free",
+        "model": "openrouter/free",
         "messages": [
           {"role": "user", "content": prompt}
         ]
