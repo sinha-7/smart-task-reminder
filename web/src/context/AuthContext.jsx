@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useCallback } from 'react';
 import api from '../api/axios';
+import { registerPushNotifications } from '../services/PushNotificationService';
 
 export const AuthContext = createContext(null);
 
@@ -15,6 +16,7 @@ export function AuthProvider({ children }) {
     localStorage.setItem('refreshToken', data.refreshToken);
     localStorage.setItem('user', JSON.stringify(data.user));
     setUser(data.user);
+    registerPushNotifications();
   }, []);
 
   const signup = useCallback(async ({ name, email, password }) => {
@@ -82,12 +84,15 @@ export function AuthProvider({ children }) {
 
   // Check if token is still valid on mount
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (token && !user) {
-      const stored = localStorage.getItem('user');
-      if (stored) {
-        setUser(JSON.parse(stored));
+    if (localStorage.getItem('accessToken') && !user) {
+      const savedUser = localStorage.getItem('user');
+      if (savedUser) {
+        setUser(JSON.parse(savedUser));
+        registerPushNotifications();
       }
+    } else if (user) {
+      // If already initialized with user state
+      registerPushNotifications();
     }
   }, [user]);
 

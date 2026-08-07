@@ -8,6 +8,10 @@ const connectDB = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
 const { apiLimiter } = require('./middleware/rateLimiter');
 const startReminderJob = require('./utils/reminderJob');
+const { initFirebase } = require('./config/firebase');
+
+// Initialize Firebase Admin
+initFirebase();
 
 // Route imports
 const authRoutes = require('./routes/authRoutes');

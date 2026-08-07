@@ -2,6 +2,7 @@ const cron = require('node-cron');
 const Task = require('../models/Task');
 const User = require('../models/User');
 const { sendEmail } = require('./sendEmail');
+const { sendPushNotification } = require('../config/firebase');
 
 /**
  * Start the reminder cron job.
@@ -46,6 +47,15 @@ const startReminderJob = () => {
                 day: 'numeric',
               })
             : 'No due date';
+            
+          // Send Push Notification if user has FCM tokens
+          if (user.fcmTokens && user.fcmTokens.length > 0) {
+            await sendPushNotification(
+              user.fcmTokens,
+              `⏰ Reminder: ${task.title}`,
+              task.description ? task.description : `Task due: ${dueDateStr}`
+            );
+          }
 
           await sendEmail({
             to: user.email,

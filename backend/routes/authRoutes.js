@@ -7,7 +7,9 @@ const {
   login,
   forgotPassword,
   resetPassword,
+  saveFcmToken,
 } = require('../controllers/authController');
+const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -94,5 +96,10 @@ router.post(
   ],
   resetPassword
 );
+
+/**
+ * POST /api/auth/fcm-token
+ */
+router.post('/fcm-token', protect, saveFcmToken);
 
 module.exports = router;

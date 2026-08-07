@@ -203,9 +203,41 @@ const resetPassword = async (req, res, next) => {
   }
 };
 
+const saveFcmToken = async (req, res, next) => {
+  try {
+    const { token } = req.body;
+    
+    if (!token) {
+      return res.status(400).json({ success: false, message: 'FCM token is required' });
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    if (!user.fcmTokens) {
+      user.fcmTokens = [];
+    }
+    
+    if (!user.fcmTokens.includes(token)) {
+      user.fcmTokens.push(token);
+      await user.save();
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'FCM token registered successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   signup,
   login,
   forgotPassword,
   resetPassword,
+  saveFcmToken,
 };
