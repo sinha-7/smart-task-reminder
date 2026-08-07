@@ -9,7 +9,7 @@ const {
   resetPassword,
   saveFcmToken,
 } = require('../controllers/authController');
-const { protect } = require('../middleware/auth');
+const protect = require('../middleware/auth');
 
 const router = express.Router();
 

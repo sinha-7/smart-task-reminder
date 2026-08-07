@@ -1,21 +1,24 @@
-const admin = require('firebase-admin');
+const { initializeApp, cert, getApps } = require('firebase-admin/app');
+const { getMessaging } = require('firebase-admin/messaging');
 const fs = require('fs');
 const path = require('path');
 const env = require('./env');
 
 const initFirebase = () => {
   try {
+    if (getApps().length > 0) return; // Prevent duplicate init
+
     const serviceAccountPath = path.join(__dirname, 'firebase-service-account.json');
     if (fs.existsSync(serviceAccountPath)) {
       const serviceAccount = require(serviceAccountPath);
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
+      initializeApp({
+        credential: cert(serviceAccount)
       });
       console.log('🔥 Firebase Admin SDK initialized from file.');
     } else if (process.env.FIREBASE_SERVICE_ACCOUNT) {
       const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
+      initializeApp({
+        credential: cert(serviceAccount)
       });
       console.log('🔥 Firebase Admin SDK initialized from environment variable.');
     } else {
@@ -27,7 +30,7 @@ const initFirebase = () => {
 };
 
 const sendPushNotification = async (tokens, title, body, data = {}) => {
-  if (!admin.apps.length || !tokens || tokens.length === 0) return false;
+  if (getApps().length === 0 || !tokens || tokens.length === 0) return false;
   
   const message = {
     notification: {
@@ -39,7 +42,7 @@ const sendPushNotification = async (tokens, title, body, data = {}) => {
   };
 
   try {
-    const response = await admin.messaging().sendEachForMulticast(message);
+    const response = await getMessaging().sendEachForMulticast(message);
     if (response.failureCount > 0) {
       console.warn(`⚠️ Firebase Push: ${response.failureCount} messages failed to send.`);
     }
@@ -53,5 +56,4 @@ const sendPushNotification = async (tokens, title, body, data = {}) => {
 module.exports = {
   initFirebase,
   sendPushNotification,
-  admin
 };
