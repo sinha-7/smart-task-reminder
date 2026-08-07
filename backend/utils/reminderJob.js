@@ -13,25 +13,27 @@ const startReminderJob = () => {
     try {
       const now = new Date();
 
-      // Find tasks due for reminder
-      const tasks = await Task.find({
-        reminderAt: { $lte: now },
-        reminderSent: false,
-        completed: false,
-      }).limit(50); // Process in batches to avoid overload
+      let processedCount = 0;
+      while (processedCount < 50) { // Limit batch size to avoid long runs
+        // Atomically find ONE task and mark it as sent so no other instance (e.g. dev server) grabs it
+        const task = await Task.findOneAndUpdate(
+          {
+            reminderAt: { $lte: now },
+            reminderSent: false,
+            completed: false,
+          },
+          { $set: { reminderSent: true } },
+          { new: true }
+        );
 
-      if (tasks.length === 0) return;
+        if (!task) break; // No more tasks to process
 
-      console.log(`⏰ Processing ${tasks.length} reminder(s)...`);
-
-      for (const task of tasks) {
+        processedCount++;
+        
         try {
           // Get the user's email
           const user = await User.findById(task.userId);
           if (!user) {
-            // Mark as sent to avoid infinite retries for deleted users
-            task.reminderSent = true;
-            await task.save();
             continue;
           }
 
@@ -68,18 +70,13 @@ const startReminderJob = () => {
               </div>
             `,
           });
-
-          // Mark as notified
-          task.reminderSent = true;
-          await task.save();
         } catch (emailError) {
-          console.error(
-            `❌ Failed to send reminder for task ${task._id}: ${emailError.message}`
-          );
-          // Mark as sent anyway so it doesn't infinitely loop and block other tasks
-          task.reminderSent = true;
-          await task.save();
+          console.error(`❌ Failed to send reminder for task ${task._id}: ${emailError.message}`);
         }
+      }
+      
+      if (processedCount > 0) {
+        console.log(`⏰ Processed ${processedCount} reminder(s).`);
       }
     } catch (error) {
       console.error(`❌ Reminder job error: ${error.message}`);
