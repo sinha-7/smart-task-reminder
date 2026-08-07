@@ -27,21 +27,26 @@ export const registerPushNotifications = async () => {
     // Register event listeners
     PushNotifications.addListener('registration', async (token) => {
       console.log('Push registration success, token: ' + token.value);
+      alert('✅ Firebase Token Acquired!');
       try {
         // Send token to our backend to associate with the current user
         await api.post('/auth/fcm-token', { token: token.value });
         console.log('FCM token saved to backend successfully.');
+        alert('✅ Token saved to server!');
       } catch (err) {
         console.error('Failed to save FCM token to backend:', err);
+        alert('❌ Failed to save token to server');
       }
     });
 
     PushNotifications.addListener('registrationError', (error) => {
       console.error('Error on push registration: ', JSON.stringify(error));
+      alert('❌ Registration Error: ' + JSON.stringify(error));
     });
 
     PushNotifications.addListener('pushNotificationReceived', (notification) => {
       console.log('Push received: ', JSON.stringify(notification));
+      alert(`⏰ In-App Reminder:\n${notification.title}\n${notification.body}`);
     });
 
     PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
