@@ -61,6 +61,10 @@ body {
            transition-all duration-200;
   }
 
+  .input-field option {
+    @apply bg-surface-800 text-gray-100;
+  }
+
   .label {
     @apply block text-sm font-medium text-gray-400 mb-1.5;
   }
