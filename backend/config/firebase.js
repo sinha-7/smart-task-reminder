@@ -8,11 +8,16 @@ const initFirebase = () => {
     const serviceAccountPath = path.join(__dirname, 'firebase-service-account.json');
     if (fs.existsSync(serviceAccountPath)) {
       const serviceAccount = require(serviceAccountPath);
-      
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount)
       });
-      console.log('🔥 Firebase Admin SDK initialized successfully.');
+      console.log('🔥 Firebase Admin SDK initialized from file.');
+    } else if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+      const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount)
+      });
+      console.log('🔥 Firebase Admin SDK initialized from environment variable.');
     } else {
       console.warn('⚠️ Firebase Service Account key not found. Push notifications disabled.');
     }
